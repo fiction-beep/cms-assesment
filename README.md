@@ -77,6 +77,7 @@ To run unit tests:
 npm run test
 ```
 Testing Tools Used:
+
 The application uses Jasmine as the testing framework
 Karma as the test runner
 Angular Testing Utilities (TestBed)
