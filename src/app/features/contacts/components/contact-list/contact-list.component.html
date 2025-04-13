@@ -40,7 +40,12 @@
         <span class="status-indicator" [ngClass]="getStatusClass(item.contact.status)"></span>
       </div>
       <div class="contact-info">
-        <h3 class="contact-name">{{ item.contact.firstName }} {{ item.contact.lastName }}</h3>
+        <div class="name-status-wrapper">
+          <h3 class="contact-name">{{ item.contact.firstName }} {{ item.contact.lastName }}</h3>
+          <span class="status-text" [ngClass]="getStatusClass(item.contact.status)">
+            {{ item.contact.status || 'offline' }}
+          </span>
+        </div>
         <p class="contact-title">{{ item.contact.jobTitle }}</p>
       </div>
       <div class="contact-actions">

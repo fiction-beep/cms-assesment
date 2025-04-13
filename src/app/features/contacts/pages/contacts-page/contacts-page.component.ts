@@ -21,24 +21,34 @@ export class ContactsPageComponent implements OnInit {
 
   constructor(private contactsService: ContactsService) {}
 
-  ngOnInit(): void {
-    this.loadContacts();
+  async ngOnInit(): Promise<void> {
+    try {
+      this.loading = true;
+      this.error = null;
+
+      // Initialize contacts data by loading from API
+      await this.contactsService.initializeContacts();
+
+      // Subscribe to contacts data
+      this.loadContacts();
+    } catch (error) {
+      console.error('Error initializing contacts:', error);
+      this.error = 'Failed to initialize contacts. Please try again later.';
+      this.loading = false;
+    }
   }
 
   /**
    * Load all contacts with their emails
    */
   loadContacts(): void {
-    this.loading = true;
-    this.error = null;
-
     this.contactsService.getContactsWithEmails().subscribe({
       next: (contactsWithEmails) => {
         this.contacts = contactsWithEmails;
         this.loading = false;
 
         // Auto-select first contact if available
-        if (this.contacts.length > 0) {
+        if (this.contacts.length > 0 && !this.selectedContact) {
           this.selectContact(this.contacts[0].contact.id.toString());
         }
       },

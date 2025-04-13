@@ -6,12 +6,6 @@
   background-color: #f9f9fb;
 }
 
-.breadcrumb {
-  margin-bottom: 20px;
-  color: #666;
-  font-size: 14px;
-}
-
 .contacts-dashboard {
   display: flex;
   gap: 20px;
@@ -21,12 +15,12 @@
 .contacts-list-container {
   flex: 1;
   max-width: 40%;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 40px);
 }
 
 .contacts-details-container {
   flex: 1.5;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 40px);
 }
 
 .loading-container {
@@ -34,7 +28,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 40px);
 
   .loading-spinner {
     width: 40px;

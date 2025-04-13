@@ -1,8 +1,4 @@
 <div class="contacts-container">
-  <div class="breadcrumb">
-    <span>Contacts / List 3</span>
-  </div>
-
   <div class="contacts-dashboard" *ngIf="!loading; else loadingTemplate">
     <div class="contacts-list-container">
       <app-contact-list
@@ -13,7 +9,7 @@
 
     <div class="contacts-details-container">
       <app-contact-details
-        [contact]="selectedContact"
+        [selectedContact]="selectedContact"
         [emails]="selectedEmails">
       </app-contact-details>
     </div>
