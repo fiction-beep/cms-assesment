@@ -4,11 +4,36 @@ import { Observable, map, catchError, of, BehaviorSubject, tap, firstValueFrom }
 import { Contact, Email, EmailAddress } from '../../shared/models/contact.model';
 import { API_CONFIG } from '../config/api-config';
 
+/**
+ * Basic API contact interface for the basic MockAPI format
+ */
 interface ApiContact {
   id: string;
-  name: string;
-  avatar: string;
-  createdAt: string;
+  name?: string;
+  avatar?: string;
+  createdAt?: string;
+  firstName?: string;
+  lastName?: string;
+  jobTitle?: string;
+  profileImage?: string;
+  bio?: string;
+  email?: Array<{
+    address: string;
+    type: string;
+  }>;
+  phone?: Array<{
+    number: string;
+    type: string;
+  }>;
+  meeting?: string;
+  social?: {
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+    pinterest?: string;
+    google?: string;
+  };
+  status?: 'online' | 'offline' | 'away';
 }
 
 @Injectable({
@@ -46,14 +71,25 @@ export class ContactsService {
 
     return firstValueFrom(
       this.http.get<ApiContact[]>(`${this.apiUrl}${this.contactsEndpoint}`).pipe(
-        map(apiContacts => this.transformApiContacts(apiContacts)),
+        map(apiContacts => {
+          // Check if the API returned proper data
+          if (!apiContacts || !Array.isArray(apiContacts) || apiContacts.length === 0) {
+            console.log('Using sample contacts data');
+            return this.transformApiContacts(API_CONFIG.SAMPLE_CONTACTS as ApiContact[]);
+          }
+          return this.transformApiContacts(apiContacts);
+        }),
         tap(contacts => {
           this.contactsLoaded = true;
           this.contactsSubject.next(contacts);
         }),
         catchError(error => {
           console.error('Error fetching contacts:', error);
-          return of([]);
+          console.log('Using sample contacts data due to API error');
+          const contacts = this.transformApiContacts(API_CONFIG.SAMPLE_CONTACTS as ApiContact[]);
+          this.contactsLoaded = true;
+          this.contactsSubject.next(contacts);
+          return of(contacts);
         })
       )
     );
@@ -70,10 +106,18 @@ export class ContactsService {
 
     // Otherwise load from API
     this.http.get<ApiContact[]>(`${this.apiUrl}${this.contactsEndpoint}`).pipe(
-      map(apiContacts => this.transformApiContacts(apiContacts)),
+      map(apiContacts => {
+        // Check if the API returned proper data
+        if (!apiContacts || !Array.isArray(apiContacts) || apiContacts.length === 0) {
+          console.log('Using sample contacts data');
+          return this.transformApiContacts(API_CONFIG.SAMPLE_CONTACTS as ApiContact[]);
+        }
+        return this.transformApiContacts(apiContacts);
+      }),
       catchError(error => {
         console.error('Error fetching contacts:', error);
-        return of([]);
+        console.log('Using sample contacts data due to API error');
+        return of(this.transformApiContacts(API_CONFIG.SAMPLE_CONTACTS as ApiContact[]));
       })
     ).subscribe(contacts => {
       this.contactsLoaded = true;
@@ -204,36 +248,73 @@ export class ContactsService {
     }
 
     try {
-      const nameParts = apiContact.name ? apiContact.name.split(' ') : ['Unknown', 'User'];
-      const firstName = nameParts[0] || 'Unknown';
-      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'User';
-      const id = apiContact.id ? parseInt(apiContact.id) : Math.floor(Math.random() * 1000);
+      // The API response format might be different than expected
+      // Let's try to extract the data properly
+      const id = apiContact.id ? parseInt(apiContact.id) : 0;
 
-      return {
-        id: id,
-        firstName: firstName,
-        lastName: lastName,
-        jobTitle: this.getRandomJobTitle(),
-        profileImage: apiContact.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${id % 100}.jpg`,
-        bio: `Bio information for ${firstName} ${lastName}. Joined on ${new Date(apiContact.createdAt || new Date()).toLocaleDateString()}.`,
-        email: [
-          { address: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`, isPrimary: true },
-          { address: `${firstName.toLowerCase()}@company.com` }
-        ],
-        phone: [
-          { number: this.generateRandomPhoneNumber(), isPrimary: true },
-          { number: this.generateRandomPhoneNumber() }
-        ],
-        meeting: `http://go.betacall.com/meet/${firstName.charAt(0).toLowerCase()}.${lastName.toLowerCase()}`,
-        social: {
-          facebook: `${firstName.toLowerCase()}.${lastName.toLowerCase()}`,
-          twitter: `${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`,
-          linkedin: `${firstName.toLowerCase()}-${lastName.toLowerCase()}`,
-          pinterest: Math.random() > 0.5 ? `${firstName.toLowerCase()}${lastName.toLowerCase()}` : undefined,
-          google: Math.random() > 0.5 ? `${firstName.toLowerCase()}.${lastName.toLowerCase()}` : undefined
-        },
-        status: this.getRandomStatus()
-      };
+      // Check if we got full JSON data that includes firstName, lastName directly
+      if (typeof apiContact === 'object' && 'firstName' in apiContact && 'lastName' in apiContact) {
+        // We have a full contact object already
+        const fullContact = apiContact as any; // Cast to any to access dynamic properties
+
+        return {
+          id: fullContact.id ? parseInt(fullContact.id.toString()) : id,
+          firstName: fullContact.firstName || 'Unknown',
+          lastName: fullContact.lastName || 'User',
+          jobTitle: fullContact.jobTitle || this.getRandomJobTitle(),
+          profileImage: fullContact.profileImage || apiContact.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${id % 100}.jpg`,
+          bio: fullContact.bio || `Bio information for ${fullContact.firstName} ${fullContact.lastName}.`,
+          email: Array.isArray(fullContact.email) ? fullContact.email.map((e: { address: string; type: string; }) => ({
+            address: e.address,
+            isPrimary: e.type === 'work' // Assume work email is primary
+          })) : [{ address: `${fullContact.firstName.toLowerCase()}.${fullContact.lastName.toLowerCase()}@example.com`, isPrimary: true }],
+          phone: Array.isArray(fullContact.phone) ? fullContact.phone.map((p: { number: string; type: string; }) => ({
+            number: p.number,
+            isPrimary: p.type === 'mobile' // Assume mobile is primary
+          })) : [{ number: this.generateRandomPhoneNumber(), isPrimary: true }],
+          meeting: typeof fullContact.meeting === 'string' ? fullContact.meeting : `http://go.betacall.com/meet/${fullContact.firstName.charAt(0).toLowerCase()}.${fullContact.lastName.toLowerCase()}`,
+          social: fullContact.social || {
+            facebook: undefined,
+            twitter: fullContact.social?.twitter,
+            linkedin: fullContact.social?.linkedin,
+            pinterest: undefined,
+            google: undefined
+          },
+          status: fullContact.status || this.getRandomStatus()
+        };
+      } else {
+        // Parse the name from the API response
+        const nameParts = apiContact.name ? apiContact.name.split(' ') : ['Unknown', 'User'];
+        const firstName = nameParts[0] || 'Unknown';
+        const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : 'User';
+
+        // Create a contact from the limited data
+        return {
+          id: id,
+          firstName: firstName,
+          lastName: lastName,
+          jobTitle: this.getRandomJobTitle(),
+          profileImage: apiContact.avatar || `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${id % 100}.jpg`,
+          bio: `Bio information for ${firstName} ${lastName}. Joined on ${new Date(apiContact.createdAt || new Date()).toLocaleDateString()}.`,
+          email: [
+            { address: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`, isPrimary: true },
+            { address: `${firstName.toLowerCase()}@company.com` }
+          ],
+          phone: [
+            { number: this.generateRandomPhoneNumber(), isPrimary: true },
+            { number: this.generateRandomPhoneNumber() }
+          ],
+          meeting: `http://go.betacall.com/meet/${firstName.charAt(0).toLowerCase()}.${lastName.toLowerCase()}`,
+          social: {
+            facebook: `${firstName.toLowerCase()}.${lastName.toLowerCase()}`,
+            twitter: `${firstName.charAt(0).toLowerCase()}${lastName.toLowerCase()}`,
+            linkedin: `${firstName.toLowerCase()}-${lastName.toLowerCase()}`,
+            pinterest: Math.random() > 0.5 ? `${firstName.toLowerCase()}${lastName.toLowerCase()}` : undefined,
+            google: Math.random() > 0.5 ? `${firstName.toLowerCase()}.${lastName.toLowerCase()}` : undefined
+          },
+          status: this.getRandomStatus()
+        };
+      }
     } catch (error) {
       console.error('Error transforming API contact:', error);
       return this.createEmptyContact();
