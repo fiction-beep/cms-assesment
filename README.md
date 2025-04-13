@@ -76,7 +76,7 @@ To run unit tests:
 ```
 npm run test
 ```
-Testing Tools Used:
+## Testing Tools used
 
 The application uses Jasmine as the testing framework
 
