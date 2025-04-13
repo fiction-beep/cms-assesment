@@ -76,7 +76,11 @@ To run unit tests:
 ```
 npm run test
 ```
-
+Testing Tools Used:
+The application uses Jasmine as the testing framework
+Karma as the test runner
+Angular Testing Utilities (TestBed)
+HttpClientTestingModule for HTTP request mocking
 ## Assumptions
 
 - The mock API is already set up at mockapi.io and will return data in the expected format
