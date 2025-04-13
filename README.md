@@ -93,3 +93,6 @@ npm run test
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+![image](https://github.com/user-attachments/assets/2d7f3116-537f-4812-830e-030e5da1fef1)
+
