@@ -1,0 +1,102 @@
+<div class="contact-details" *ngIf="contact; else noContact">
+  <div class="contact-profile">
+    <div class="profile-header">
+      <div class="avatar-container">
+        <img *ngIf="contact.profileImage" [src]="contact.profileImage" [alt]="fullName" class="avatar">
+        <div *ngIf="!contact.profileImage" class="avatar-initials">
+          {{ contact.firstName.charAt(0) }}{{ contact.lastName.charAt(0) }}
+        </div>
+      </div>
+      <div class="contact-main-info">
+        <h2 class="contact-name">{{ fullName }}</h2>
+        <p class="contact-title">{{ contact.jobTitle }}</p>
+      </div>
+      <div class="contact-actions">
+        <button class="action-btn message-btn">
+          <span class="btn-icon message-icon"></span>
+          <span class="btn-text">Message</span>
+        </button>
+        <button class="action-btn call-btn">
+          <span class="btn-icon call-icon"></span>
+        </button>
+        <button class="action-btn share-btn">
+          <span class="btn-icon share-icon"></span>
+        </button>
+        <button class="action-btn more-btn">
+          <span class="btn-icon more-icon"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="profile-body">
+      <div class="profile-section">
+        <h3 class="section-title">Bio</h3>
+        <p class="bio-text">{{ contact.bio || 'No bio information available.' }}</p>
+      </div>
+
+      <div class="profile-section">
+        <h3 class="section-title">Email</h3>
+        <div class="email-list">
+          <div *ngIf="primaryEmail" class="contact-item">
+            <div class="item-value">{{ primaryEmail.email }}</div>
+            <div class="item-tag primary">Primary</div>
+          </div>
+          <div *ngFor="let email of secondaryEmails" class="contact-item">
+            <div class="item-value">{{ email.email }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-section" *ngIf="contact.meeting">
+        <h3 class="section-title">Meeting</h3>
+        <div class="contact-item">
+          <div class="item-value">{{ contact.meeting }}</div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h3 class="section-title">Phone</h3>
+        <div class="phone-list">
+          <div *ngIf="primaryPhone" class="contact-item">
+            <div class="item-value">{{ primaryPhone }}</div>
+            <div class="item-tag primary">Primary</div>
+          </div>
+          <div *ngFor="let phone of secondaryPhones" class="contact-item">
+            <div class="item-value">{{ phone }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <h3 class="section-title">Social</h3>
+        <div class="social-links" *ngIf="contact.social">
+          <a *ngIf="contact.social.facebook" href="javascript:void(0)" class="social-link facebook">
+            <span class="social-icon facebook-icon"></span>
+          </a>
+          <a *ngIf="contact.social.pinterest" href="javascript:void(0)" class="social-link pinterest">
+            <span class="social-icon pinterest-icon"></span>
+          </a>
+          <a *ngIf="contact.social.twitter" href="javascript:void(0)" class="social-link twitter">
+            <span class="social-icon twitter-icon"></span>
+          </a>
+          <a *ngIf="contact.social.linkedin" href="javascript:void(0)" class="social-link linkedin">
+            <span class="social-icon linkedin-icon"></span>
+          </a>
+          <a *ngIf="contact.social.google" href="javascript:void(0)" class="social-link google">
+            <span class="social-icon google-icon"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #noContact>
+  <div class="no-contact-selected">
+    <div class="placeholder-content">
+      <div class="placeholder-icon">👋</div>
+      <h3>Select a contact</h3>
+      <p>Choose a contact from the list to view their details</p>
+    </div>
+  </div>
+</ng-template>

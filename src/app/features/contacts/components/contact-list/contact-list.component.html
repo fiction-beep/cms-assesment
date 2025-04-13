@@ -1,0 +1,63 @@
+<div class="contacts-list">
+  <header class="contacts-header">
+    <div class="menu-icon">
+      <i class="menu-lines"></i>
+    </div>
+    <h1>Contacts</h1>
+    <div class="navigation-controls">
+      <button class="prev-btn" aria-label="Previous">
+        <i class="arrow-left"></i>
+      </button>
+      <button class="next-btn" aria-label="Next">
+        <i class="arrow-right"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="search-container">
+    <p class="search-label">Search for a contact</p>
+    <div class="search-input-container">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Name, email or phone number"
+        class="search-input" />
+      <button class="search-button" aria-label="Search">
+        <i class="search-icon"></i>
+      </button>
+    </div>
+  </div>
+
+  <ul class="contacts">
+    <li *ngFor="let item of filteredContacts"
+        class="contact-item"
+        (click)="selectContact(item.contact.id)">
+      <div class="contact-avatar">
+        <img *ngIf="item.contact.profileImage" [src]="item.contact.profileImage" [alt]="item.contact.firstName + ' ' + item.contact.lastName">
+        <div *ngIf="!item.contact.profileImage" class="contact-initials">
+          {{ item.contact.firstName.charAt(0) }}{{ item.contact.lastName.charAt(0) }}
+        </div>
+        <span class="status-indicator" [ngClass]="getStatusClass(item.contact.status)"></span>
+      </div>
+      <div class="contact-info">
+        <h3 class="contact-name">{{ item.contact.firstName }} {{ item.contact.lastName }}</h3>
+        <p class="contact-title">{{ item.contact.jobTitle }}</p>
+      </div>
+      <div class="contact-actions">
+        <button class="action-btn message-btn" aria-label="Message">
+          <i class="message-icon"></i>
+        </button>
+        <button class="action-btn call-btn" aria-label="Call">
+          <i class="call-icon"></i>
+        </button>
+        <button class="action-btn more-btn" aria-label="More options">
+          <i class="more-icon"></i>
+        </button>
+      </div>
+    </li>
+
+    <li *ngIf="filteredContacts.length === 0" class="no-results">
+      <p>No contacts found matching your search.</p>
+    </li>
+  </ul>
+</div>

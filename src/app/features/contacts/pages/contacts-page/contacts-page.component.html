@@ -1,0 +1,33 @@
+<div class="contacts-container">
+  <div class="breadcrumb">
+    <span>Contacts / List 3</span>
+  </div>
+
+  <div class="contacts-dashboard" *ngIf="!loading; else loadingTemplate">
+    <div class="contacts-list-container">
+      <app-contact-list
+        [contacts]="contacts"
+        (contactSelected)="selectContact($event)">
+      </app-contact-list>
+    </div>
+
+    <div class="contacts-details-container">
+      <app-contact-details
+        [contact]="selectedContact"
+        [emails]="selectedEmails">
+      </app-contact-details>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="loadContacts()">Try Again</button>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading contacts...</p>
+  </div>
+</ng-template>
